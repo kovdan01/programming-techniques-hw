@@ -29,6 +29,7 @@ try:
     for name, timings in data.items():
         plt.plot(columns, timings, label=name)
         plt.xscale('log')
+        plt.yscale('log')
         plt.legend()
     plt.show()
 except Exception as e:
