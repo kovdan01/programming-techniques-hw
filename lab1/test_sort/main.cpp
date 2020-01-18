@@ -48,7 +48,7 @@ TestResult test_all(const Data& data, const std::vector<ArraySize>& sizes)
     std::map<SortName, std::function<void(Iterator, Iterator)>> name_to_function =
     {
         { "Quick Sort", my::quick_sort<Iterator> },
-        // { "Heap Sort", my::heap_sort<Iterator> },
+        { "Heap Sort", my::heap_sort<Iterator> },
         { "Shaker Sort", my::shaker_sort<Iterator> }
     };
     TestResult answer;

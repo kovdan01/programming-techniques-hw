@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Invalid arguments. Usage:\n"
                      "./generate_data <data_size>\n"
-                     "<data_size> - number of lines in csv";
+                     "<data_size> - number of lines in csv\n";
         return 1;
     }
 
