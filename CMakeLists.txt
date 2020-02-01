@@ -18,6 +18,12 @@ add_subdirectory(${Entry_ROOT_DIR})
 include_directories(${SQLiteCpp_INCLUDE_DIR}
                     ${Entry_INCLUDE_DIR})
 
+set(Helpers_ROOT_DIR helpers)
+set(Helpers_INCLUDE_DIR ${Helpers_ROOT_DIR})
+add_subdirectory(${Helpers_ROOT_DIR})
+
+include_directories(${Helpers_INCLUDE_DIR})
+
 add_subdirectory(generate_data)
 add_subdirectory(lab1)
 add_subdirectory(lab2)
