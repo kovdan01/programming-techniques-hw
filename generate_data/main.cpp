@@ -1,4 +1,4 @@
-#include "../entry/entry.h"
+#include "entry.h"
 #include "geography.h"
 #include "names.h"
 #include "teams.h"

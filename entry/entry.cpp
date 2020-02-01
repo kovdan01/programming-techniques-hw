@@ -63,7 +63,7 @@ Entry from_csv(const std::string& csv_line, char sep)
     getline(input, trainer, sep);
     input >> year;
     if (input.peek() != sep)
-        throw std::runtime_error("Invalid separator");
+        throw std::runtime_error("Invalid separator or wrong format of year");
     input.ignore(1);
     input >> score;
     getline(input, remaining);

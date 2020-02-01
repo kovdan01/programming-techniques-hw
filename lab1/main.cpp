@@ -34,7 +34,7 @@ SizeToTime test_sort(const std::function<void(Iterator, Iterator)>& sort_functio
         time_point<high_resolution_clock> start = high_resolution_clock::now();
         sort_function(data_copy.begin(), data_copy.end());
         time_point<high_resolution_clock> end = high_resolution_clock::now();
-        answer[size] = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+        answer[size] = duration_cast<std::chrono::nanoseconds>(end - start).count();
 #ifndef DNDEBUG
         if (!std::is_sorted(data_copy.begin(), data_copy.end()))
             throw std::runtime_error("Wrong sort algorithm");
