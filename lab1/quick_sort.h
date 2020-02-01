@@ -3,6 +3,7 @@
 
 #include <iterator>
 #include <stack>
+#include <functional>
 
 namespace my
 {
@@ -10,10 +11,11 @@ namespace my
 template<typename Iterator, typename Comparator>
 void quick_sort(Iterator begin, Iterator end, Comparator cmp)
 {
+    using diff_t = typename std::iterator_traits<Iterator>::difference_type;
     auto partition = [&cmp](Iterator begin, Iterator end)
     {
         Iterator left = begin, right = end;
-        std::ptrdiff_t size = std::distance(begin, end);
+        diff_t size = std::distance(begin, end);
         auto pivot = *std::next(left, size / 2);
         while (std::distance(left, right) >= 0)
         {
@@ -45,11 +47,8 @@ void quick_sort(Iterator begin, Iterator end, Comparator cmp)
 template<typename Iterator>
 void quick_sort(Iterator begin, Iterator end)
 {
-    using elem_type = decltype(*begin);
-    quick_sort(begin, end, [](const elem_type& lhs, const elem_type& rhs)
-    {
-        return lhs < rhs;
-    });
+    using elem_type = typename std::iterator_traits<Iterator>::value_type;
+    quick_sort(begin, end, std::less<elem_type>());
 }
 
 } // namespace my

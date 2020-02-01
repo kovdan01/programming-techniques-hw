@@ -2,6 +2,7 @@
 #define SHAKER_SORT_H
 
 #include <iterator>
+#include <functional>
 
 namespace my
 {
@@ -9,12 +10,13 @@ namespace my
 template<typename Iterator, typename Comparator>
 void shaker_sort(Iterator begin, Iterator end, Comparator cmp)
 {
-    std::ptrdiff_t size = std::distance(begin, end);
+    using diff_t = typename std::iterator_traits<Iterator>::difference_type;
+    diff_t size = std::distance(begin, end);
     if (size <= 1)
         return;
-    std::ptrdiff_t left = 0, right = size;
+    diff_t left = 0, right = size;
     bool exit_loop;
-    auto action = [&begin, &cmp, &exit_loop](std::ptrdiff_t j)
+    auto action = [&begin, &cmp, &exit_loop](diff_t j)
     {
         auto& first = *std::next(begin, j);
         auto& second = *std::next(begin, j + 1);
@@ -27,10 +29,10 @@ void shaker_sort(Iterator begin, Iterator end, Comparator cmp)
     for (;;)
     {
         exit_loop = true;
-        for (std::ptrdiff_t j = left; j < right - 1; ++j)
+        for (diff_t j = left; j < right - 1; ++j)
             action(j);
         --right;
-        for (std::ptrdiff_t j = right - 1; j >= left; --j)
+        for (diff_t j = right - 1; j >= left; --j)
             action(j);
         ++left;
         if (exit_loop)
@@ -41,11 +43,8 @@ void shaker_sort(Iterator begin, Iterator end, Comparator cmp)
 template<typename Iterator>
 void shaker_sort(Iterator begin, Iterator end)
 {
-    using elem_type = decltype(*begin);
-    shaker_sort(begin, end, [](const elem_type& lhs, const elem_type& rhs)
-    {
-        return lhs < rhs;
-    });
+    using elem_type = typename std::iterator_traits<Iterator>::value_type;
+    shaker_sort(begin, end, std::less<elem_type>());
 }
 
 } // namespace my

@@ -2,6 +2,7 @@
 #define HEAP_SORT_H
 
 #include <iterator>
+#include <functional>
 
 namespace my
 {
@@ -9,19 +10,20 @@ namespace my
 template<typename Iterator, typename Comparator>
 void heap_sort(Iterator begin, Iterator end, Comparator cmp)
 {
-    std::ptrdiff_t size = std::distance(begin, end);
+    using diff_t = typename std::iterator_traits<Iterator>::difference_type;
+    diff_t size = std::distance(begin, end);
     if (size <= 1)
         return;
-    std::ptrdiff_t heap_size = size;
+    diff_t heap_size = size;
 
     auto sift_down = [&cmp, &begin, &heap_size](Iterator it)
     {
-        std::ptrdiff_t i = std::distance(begin, it);
+        diff_t i = std::distance(begin, it);
         while (2 * i + 1 < heap_size)
         {
-            std::ptrdiff_t left = 2 * i + 1;
-            std::ptrdiff_t right = 2 * i + 2;
-            std::ptrdiff_t j = left;
+            diff_t left = 2 * i + 1;
+            diff_t right = 2 * i + 2;
+            diff_t j = left;
             if (right < heap_size && cmp(*std::next(begin, left), *std::next(begin, right)))
                 j = right;
             Iterator it = std::next(begin, i);
@@ -36,7 +38,7 @@ void heap_sort(Iterator begin, Iterator end, Comparator cmp)
     for (Iterator it = std::next(begin, size / 2); it != std::prev(begin); --it)
         sift_down(it);
 
-    for (std::ptrdiff_t i = 0; i < size; ++i)
+    for (diff_t i = 0; i < size; ++i)
     {
         std::iter_swap(begin, std::prev(end, i + 1));
         --heap_size;
@@ -47,11 +49,8 @@ void heap_sort(Iterator begin, Iterator end, Comparator cmp)
 template<typename Iterator>
 void heap_sort(Iterator begin, Iterator end)
 {
-    using elem_type = decltype(*begin);
-    heap_sort(begin, end, [](const elem_type& lhs, const elem_type& rhs)
-    {
-        return lhs < rhs;
-    });
+    using elem_type = typename std::iterator_traits<Iterator>::value_type;
+    heap_sort(begin, end, std::less<elem_type>());
 }
 
 } // namespace my
