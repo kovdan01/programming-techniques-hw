@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 try:
     print("Generating data...")
     if not os.path.isfile("data.sqlite"):
-        subprocess.call("../generate_data/generate_data 100000 data.sqlite", shell=True)
+        subprocess.call("../generate_data/generate_data --size=100000 --output=data.sqlite", shell=True)
     print("Done!")
 
     if not os.path.isfile("sizes.txt"):
@@ -17,7 +17,7 @@ try:
 
     print("Running tests...")
     if not os.path.isfile("results.csv"):
-        subprocess.call("./2_test_search data.sqlite sizes.txt results.csv 2> test_search.log", shell=True)
+        subprocess.call("./2_test_search --input=data.sqlite --sizes=sizes.txt --output=results.csv 2> test_sort.log", shell=True)
     print("Done!")
 
     raw = pd.read_csv("results.csv", sep=';')

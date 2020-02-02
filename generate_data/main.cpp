@@ -3,7 +3,9 @@
 #include "names.h"
 #include "teams.h"
 #include "SQLiteCpp/SQLiteCpp.h"
+#include <boost/program_options.hpp>
 #include <iostream>
+#include <fstream>
 #include <random>
 #include <string>
 #include <utility>
@@ -38,45 +40,105 @@ int generate_score(std::mt19937& prng)
     return std::uniform_int_distribution<int>(0, 100)(prng); //NOLINT(cppcoreguidelines-avoid-magic-numbers)
 }
 
+Entry generate_entry(std::mt19937& prng)
+{
+    auto [country, city] = generate_location(prng);
+    std::string club = generate_team(prng);
+    std::string trainer = generate_trainer(prng);
+    int year = generate_year(prng);
+    int score = generate_score(prng);
+    return Entry(country, city, club, trainer, year, score);
+}
+
 int main(int argc, char* argv[])
 {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
-    if (argc != 3)
+
+    namespace po = boost::program_options;
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help,H", "Print this message")
+        ("size,S", po::value<std::size_t>()->required(), "Number of entries to generate (required)")
+        ("output,O", po::value<std::string>()->required(), "Filename to store entries (required)")
+        ("format,F", po::value<std::string>(), "File format (csv or sqlite)")
+        ;
+
+    po::variables_map vm;
+    try
     {
-        std::cerr << "Invalid arguments. Usage:\n"
-                     "./generate_data <data_size> <db_name>\n"
-                     "<data_size> - number of lines in csv\n"
-                     "<db_name> - name of sqlite database";
+        po::store(parse_command_line(argc, argv, desc), vm);
+        if (vm.contains("help"))
+        {
+            std::cout << desc << "\n";
+            return 0;
+        }
+        po::notify(vm);
+    }
+    catch (const po::error& error)
+    {
+        std::cerr << "Error while parsing command-line arguments: "
+                  << error.what() << "\nPlease use --help to see help message\n";
         return 1;
     }
 
-    int size = std::stoi(std::string(argv[1]));
-    std::string db_name = std::string(argv[2]);
+    std::string filename = vm["output"].as<std::string>();
+    std::size_t size = vm["size"].as<std::size_t>();
+    std::string format;
+    if (vm.contains("format"))
+    {
+        format = vm["format"].as<std::string>();
+    }
+    else
+    {
+        if (filename.ends_with(".csv"))
+        {
+            format = "csv";
+        }
+        else if (filename.ends_with(".sqlite"))
+        {
+            format = "sqlite";
+        }
+        else
+        {
+            std::cerr << "Invalid format. Please either specify format manually with "
+                         "--format or use --output with extension .csv or .sqlite.\n"
+                         "Please use --help to see detailed help message";
+        }
+    }
+
+    if (format != "csv" && format != "sqlite")
+    {
+        std::cerr << "Invalid format. Please use --help see help message\n";
+        return 1;
+    }
+
     std::mt19937 prng(std::random_device{}());
 
-    SQLite::Database db(db_name, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
-    db.exec("DROP TABLE IF EXISTS " + Entry::table_name);
-    db.exec("CREATE TABLE " + Entry::table_name + " ("
-            "country  TEXT, "
-            "city     TEXT, "
-            "club     TEXT, "
-            "trainer  TEXT, "
-            "year  INTEGER, "
-            "score INTEGER)");
-    //std::cout << "country;city;club;trainer;year;score\n";
-    SQLite::Transaction transaction(db);
-    for (int i = 0; i < size; ++i)
+    if (format == "csv")
     {
-        auto [country, city] = generate_location(prng);
-        std::string club = generate_team(prng);
-        std::string trainer = generate_trainer(prng);
-        int year = generate_year(prng);
-        int score = generate_score(prng);
-        //Entry(country, city, club, trainer, year, score).to_csv(std::cout);
-        Entry(country, city, club, trainer, year, score).to_sqlite(db, Entry::table_name);
+        std::ofstream csv(filename);
+        csv << "country;city;club;trainer;year;score\n";
+        for (std::size_t i = 0; i < size; ++i)
+            generate_entry(prng).to_csv(csv);
     }
-    transaction.commit();
+    else if (format == "sqlite")
+    {
+        SQLite::Database db(filename, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+        db.exec("DROP TABLE IF EXISTS " + Entry::table_name);
+        db.exec("CREATE TABLE " + Entry::table_name + " ("
+                "country  TEXT, "
+                "city     TEXT, "
+                "club     TEXT, "
+                "trainer  TEXT, "
+                "year  INTEGER, "
+                "score INTEGER)");
+
+        SQLite::Transaction transaction(db);
+        for (std::size_t i = 0; i < size; ++i)
+            generate_entry(prng).to_sqlite(db, Entry::table_name);
+        transaction.commit();
+    }
 
     return 0;
 }

@@ -3,6 +3,7 @@
 #include "binary_search.h"
 #include "linear_search.h"
 #include "../lab1/quick_sort.h"
+#include <boost/program_options.hpp>
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -187,25 +188,78 @@ int main(int argc, char* argv[])
 {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
-    if (argc != 4)
+
+    namespace po = boost::program_options;
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help,H", "Print this message")
+        ("sizes,S", po::value<std::string>()->required(), "Text file with data sizes to be testes in the following format:\n"
+                                                          "size_0 size_1 size_2 ... size_n")
+
+        ("input,I", po::value<std::string>()->required(), "File (csv or sqlite) with football clubs data. Format:\n"
+                                                          "* if csv: country;club;city;trainer;year;score\n"
+                                                          "* if sqlite: table 'entries' with columns 'country', 'club', 'city', 'trainer', 'year', 'score'")
+        ("format,F", po::value<std::string>(), "Input file format (csv or sqlite)")
+        ("output,O", po::value<std::string>()->required(), "csv file to write test results, the format is:\n"
+                                                           "algo_name;result_for_size_0;...;result_for_size_n")
+        ;
+
+    po::variables_map vm;
+    try
     {
-        std::cerr << "Invalid arguments.\n"
-                     "Usage: ./lab1 <input_name.csv> <sizes> <output_name.csv>\n"
-                     "* <input_name.csv> - csv file with football clubs data in the following format:\n"
-                     "  country;club;city;trainer;year;score\n"
-                     "* <sizes> - text file with data sizes to be testes in the following format:\n"
-                     "  size_0 size_1 size_2 ... size_n\n"
-                     "* <output_name.csv> - csv file to write test results, the format is:\n"
-                     "  sort_name;result_for_size_0;...;result_for_size_n\n";
+        po::store(parse_command_line(argc, argv, desc), vm);
+        if (vm.contains("help"))
+        {
+            std::cout << desc << "\n";
+            return 0;
+        }
+        po::notify(vm);
+    }
+    catch (const po::error& error)
+    {
+        std::cerr << "Error while parsing command-line arguments: "
+                  << error.what() << "\nPlease use --help to see help message\n";
         return 1;
     }
-    std::string input_filename(argv[1]);
-    std::string sizes_filename(argv[2]);
-    std::string output_filename(argv[3]);
+
+    std::string input_filename = vm["input"].as<std::string>();
+    std::string sizes_filename = vm["sizes"].as<std::string>();
+    std::string output_filename = vm["output"].as<std::string>();
+    std::string format;
+    if (vm.contains("format"))
+    {
+        format = vm["format"].as<std::string>();
+    }
+    else
+    {
+        if (input_filename.ends_with(".csv"))
+        {
+            format = "csv";
+        }
+        else if (input_filename.ends_with(".sqlite"))
+        {
+            format = "sqlite";
+        }
+        else
+        {
+            std::cerr << "Invalid format. Please either specify format manually with "
+                         "--format or use --input with extension .csv or .sqlite.\n"
+                         "Please use --help to see detailed help message";
+        }
+    }
+
+    if (format != "csv" && format != "sqlite")
+    {
+        std::cerr << "Invalid format. Please use --help see help message\n";
+        return 1;
+    }
 
     std::cerr << "Reading data..." << std::endl;
-    //Data data = read_data_from_csv(input_filename);
-    Data data = read_data_from_sqlite(input_filename);
+    Data data;
+    if (format == "csv")
+        data = read_data_from_csv(input_filename);
+    else if (format == "sqlite")
+        data = read_data_from_sqlite(input_filename);
     std::vector<ArraySize> sizes = read_sizes(sizes_filename);
     shrink_sizes(sizes, data.size());
     std::cerr << "Done!" << std::endl;

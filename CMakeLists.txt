@@ -11,6 +11,8 @@ set(SQLiteCpp_ROOT_DIR ${THIRD_PARTY_DIR}/SQLiteCpp)
 set(SQLiteCpp_INCLUDE_DIR ${SQLiteCpp_ROOT_DIR}/include)
 add_subdirectory(${SQLiteCpp_ROOT_DIR})
 
+find_package(Boost COMPONENTS COMPONENTS program_options REQUIRED)
+
 set(Entry_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/entry)
 set(Entry_INCLUDE_DIR ${Entry_ROOT_DIR})
 add_subdirectory(${Entry_ROOT_DIR})
