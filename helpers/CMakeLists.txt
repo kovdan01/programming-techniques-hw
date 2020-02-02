@@ -6,3 +6,6 @@ set(SOURCES io_operations.cpp)
 set(HEADERS io_operations.h)
 
 add_library(${LIBRARY_NAME} ${SOURCES} ${HEADERS})
+
+target_include_directories(${LIBRARY_NAME} PRIVATE ${Entry_INCLUDE_DIR})
+target_link_libraries(${LIBRARY_NAME} PRIVATE entry)

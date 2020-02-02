@@ -8,4 +8,6 @@ set(HEADERS geography.h
             teams.h)
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+
+target_include_directories(${PROJECT_NAME} PUBLIC ${Entry_INCLUDE_DIR} ${SQLiteCpp_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE entry)
