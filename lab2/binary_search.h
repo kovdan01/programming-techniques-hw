@@ -33,7 +33,7 @@ using check_comparator = typename std::enable_if<
 template<typename Iterator, typename Key, typename Comparator, typename KeyExtractor>
 using check_comparator_and_key_extractor = typename std::enable_if<
         std::is_invocable_r<const Key&, KeyExtractor, const elem_type<Iterator>&>::value &&
-        std::is_invocable_r<bool, Comparator, const elem_type<Iterator>&, const elem_type<Iterator>&>::value,
+        std::is_invocable_r<bool, Comparator, const Key&, const Key&>::value,
     Iterator>::type;
 
 template<typename Iterator>
@@ -80,7 +80,7 @@ template<typename Iterator, typename Key, typename KeyExtractor>
 auto lower_bound(Iterator begin, Iterator end, const Key& key, KeyExtractor extractor) ->
     check_key_extractor<Iterator, Key, KeyExtractor>
 {
-    return my::lower_bound(begin, end, key, std::less<elem_type<Iterator>>(), extractor);
+    return my::lower_bound(begin, end, key, std::less<Key>(), extractor);
 }
 
 template<typename Iterator, typename Key>
@@ -126,7 +126,7 @@ template<typename Iterator, typename Key, typename KeyExtractor>
 auto upper_bound(Iterator begin, Iterator end, const Key& key, KeyExtractor extractor) ->
     check_key_extractor<Iterator, Key, KeyExtractor>
 {
-    return my::upper_bound(begin, end, key, std::less<elem_type<Iterator>>(), extractor);
+    return my::upper_bound(begin, end, key, std::less<Key>(), extractor);
 }
 
 template<typename Iterator, typename Key>
