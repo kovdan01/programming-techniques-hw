@@ -29,7 +29,7 @@ SizeToTime test_sort(const std::function<void(Iterator, Iterator)>& sort_functio
     for (ArraySize size : sizes)
     {
         size = std::min(size, data.size());
-        if (answer.count(size) != 0)
+        if (answer.contains(size))
             continue;
         Data data_copy(data.begin(), std::next(data.begin(), static_cast<std::ptrdiff_t>(size)));
         time_point<high_resolution_clock> start = high_resolution_clock::now();
