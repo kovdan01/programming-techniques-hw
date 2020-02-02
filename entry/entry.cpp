@@ -6,8 +6,8 @@
 
 bool operator==(const Entry& lhs, const Entry& rhs)
 {
-    return std::tie(lhs.m_year, lhs.m_country, lhs.m_score, lhs.m_club) <
-           std::tie(rhs.m_year, rhs.m_country, rhs.m_score, rhs.m_club);
+    return std::tie(lhs.m_club, lhs.m_year, lhs.m_country, lhs.m_score) ==
+           std::tie(rhs.m_club, rhs.m_year, rhs.m_country, rhs.m_score);
 }
 
 bool operator!=(const Entry& lhs, const Entry& rhs)
@@ -19,8 +19,8 @@ bool operator<(const Entry& lhs, const Entry& rhs)
 {
     double lhs_reversed_score = 1. / lhs.m_score;
     double rhs_reversed_score = 1. / rhs.m_score;
-    return std::tie(lhs.m_year, lhs.m_country, lhs_reversed_score, lhs.m_club) <
-           std::tie(rhs.m_year, rhs.m_country, rhs_reversed_score, rhs.m_club);
+    return std::tie(lhs.m_club, lhs.m_year, lhs.m_country, lhs_reversed_score) <
+           std::tie(rhs.m_club, rhs.m_year, rhs.m_country, rhs_reversed_score);
 }
 
 bool operator>(const Entry& lhs, const Entry& rhs)

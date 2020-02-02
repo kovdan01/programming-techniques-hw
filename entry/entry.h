@@ -47,6 +47,11 @@ public:
     friend bool operator<=(const Entry& lhs, const Entry& rhs);
     friend bool operator>=(const Entry& lhs, const Entry& rhs);
     friend std::ostream& operator<<(std::ostream& stream, const Entry& entry);
+
+    operator Club()
+    {
+        return m_club;
+    }
 private:
     Country m_country;
     City m_city;
