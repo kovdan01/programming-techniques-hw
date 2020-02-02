@@ -14,7 +14,8 @@ std::vector<ArraySize> read_sizes(const std::string& sizes_filename);
 
 void shrink_sizes(std::vector<ArraySize>& sizes, ArraySize max_size);
 
-Data read_data(const std::string& csv_filename, char sep = ';');
+Data read_data_from_csv(const std::string& csv_filename, char sep = ';');
+Data read_data_from_sqlite(const std::string& sqlite_filename);
 
 std::ostream& print_timings_csv_line(std::ostream& output, const AlgoName& name,
                                      const SizeToTime& timings, char sep = ';');

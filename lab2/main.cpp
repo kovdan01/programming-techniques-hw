@@ -9,7 +9,6 @@
 #include <functional>
 #include <iostream>
 #include <map>
-#include <stdexcept>
 #include <string>
 #include <vector>
 #include <cassert>
@@ -205,7 +204,8 @@ int main(int argc, char* argv[])
     std::string output_filename(argv[3]);
 
     std::cerr << "Reading data..." << std::endl;
-    Data data = read_data(input_filename);
+    //Data data = read_data_from_csv(input_filename);
+    Data data = read_data_from_sqlite(input_filename);
     std::vector<ArraySize> sizes = read_sizes(sizes_filename);
     shrink_sizes(sizes, data.size());
     std::cerr << "Done!" << std::endl;

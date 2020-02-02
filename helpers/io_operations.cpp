@@ -25,7 +25,7 @@ void shrink_sizes(std::vector<ArraySize>& sizes, ArraySize max_size)
     sizes.resize(static_cast<std::size_t>(last - sizes.begin()));
 }
 
-Data read_data(const std::string& csv_filename, char sep)
+Data read_data_from_csv(const std::string& csv_filename, char sep)
 {
     std::ifstream input(csv_filename);
     std::string csv_line;
@@ -33,6 +33,16 @@ Data read_data(const std::string& csv_filename, char sep)
     Data answer;
     while (std::getline(input, csv_line))
         answer.emplace_back(from_csv(csv_line, sep));
+    return answer;
+}
+
+Data read_data_from_sqlite(const std::string& sqlite_filename)
+{
+    SQLite::Database db(sqlite_filename);
+    SQLite::Statement query(db, "SELECT * FROM " + Entry::table_name);
+    Data answer;
+    while (query.executeStep())
+        answer.emplace_back(from_sqlite(query));
     return answer;
 }
 

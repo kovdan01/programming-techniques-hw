@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 
 try:
     print("Generating data...")
-    if not os.path.isfile("data.csv"):
-        subprocess.call("../generate_data/generate_data 100000 > data.csv", shell=True)
+    if not os.path.isfile("data.sqlite"):
+        subprocess.call("../generate_data/generate_data 100000 data.sqlite", shell=True)
     print("Done!")
 
     if not os.path.isfile("sizes.txt"):
@@ -17,7 +17,7 @@ try:
 
     print("Running tests...")
     if not os.path.isfile("results.csv"):
-        subprocess.call("./2_test_search data.csv sizes.txt results.csv 2> test_search.log", shell=True)
+        subprocess.call("./2_test_search data.sqlite sizes.txt results.csv 2> test_search.log", shell=True)
     print("Done!")
 
     raw = pd.read_csv("results.csv", sep=';')

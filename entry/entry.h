@@ -1,6 +1,7 @@
 #ifndef ENTRY_H
 #define ENTRY_H
 
+#include "SQLiteCpp/SQLiteCpp.h"
 #include <ostream>
 #include <string>
 #include <utility>
@@ -40,6 +41,9 @@ public:
 
     void to_csv(std::ostream& stream, char sep = ';') const;
 
+    inline static const std::string table_name = "entries";
+    void to_sqlite(SQLite::Database& db, const std::string& table = table_name) const;
+
     friend bool operator==(const Entry& lhs, const Entry& rhs);
     friend bool operator!=(const Entry& lhs, const Entry& rhs);
     friend bool operator<(const Entry& lhs, const Entry& rhs);
@@ -48,10 +52,7 @@ public:
     friend bool operator>=(const Entry& lhs, const Entry& rhs);
     friend std::ostream& operator<<(std::ostream& stream, const Entry& entry);
 
-    operator Club()
-    {
-        return m_club;
-    }
+    operator Club() { return m_club; }
 private:
     Country m_country;
     City m_city;
@@ -62,5 +63,6 @@ private:
 };
 
 Entry from_csv(const std::string& csv_line, char sep = ';');
+Entry from_sqlite(SQLite::Statement& query);
 
 #endif // ENTRY_H

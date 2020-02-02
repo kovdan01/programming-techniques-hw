@@ -2,6 +2,7 @@
 #include "geography.h"
 #include "names.h"
 #include "teams.h"
+#include "SQLiteCpp/SQLiteCpp.h"
 #include <iostream>
 #include <random>
 #include <string>
@@ -41,18 +42,30 @@ int main(int argc, char* argv[])
 {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
-    if (argc != 2)
+    if (argc != 3)
     {
         std::cerr << "Invalid arguments. Usage:\n"
-                     "./generate_data <data_size>\n"
-                     "<data_size> - number of lines in csv\n";
+                     "./generate_data <data_size> <db_name>\n"
+                     "<data_size> - number of lines in csv\n"
+                     "<db_name> - name of sqlite database";
         return 1;
     }
 
     int size = std::stoi(std::string(argv[1]));
+    std::string db_name = std::string(argv[2]);
     std::mt19937 prng(std::random_device{}());
-    std::cout << "country;city;club;trainer;year;score\n";
 
+    SQLite::Database db(db_name, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+    db.exec("DROP TABLE IF EXISTS " + Entry::table_name);
+    db.exec("CREATE TABLE " + Entry::table_name + " ("
+            "country  TEXT, "
+            "city     TEXT, "
+            "club     TEXT, "
+            "trainer  TEXT, "
+            "year  INTEGER, "
+            "score INTEGER)");
+    //std::cout << "country;city;club;trainer;year;score\n";
+    SQLite::Transaction transaction(db);
     for (int i = 0; i < size; ++i)
     {
         auto [country, city] = generate_location(prng);
@@ -60,8 +73,10 @@ int main(int argc, char* argv[])
         std::string trainer = generate_trainer(prng);
         int year = generate_year(prng);
         int score = generate_score(prng);
-        Entry(country, city, club, trainer, year, score).to_csv(std::cout);
+        //Entry(country, city, club, trainer, year, score).to_csv(std::cout);
+        Entry(country, city, club, trainer, year, score).to_sqlite(db, Entry::table_name);
     }
+    transaction.commit();
 
     return 0;
 }

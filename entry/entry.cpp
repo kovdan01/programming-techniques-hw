@@ -47,6 +47,19 @@ void Entry::to_csv(std::ostream& stream, char sep) const
            << m_score << '\n';
 }
 
+void Entry::to_sqlite(SQLite::Database &db, const std::string& table) const
+{
+    db.exec("INSERT INTO " + table + " "
+            "(country, city, club, trainer, year, score)"
+            "VALUES ("
+            + "\"" + m_country        + "\", "
+            + "\"" + m_city           + "\", "
+            + "\"" + m_club           + "\", "
+            + "\"" + m_trainer        + "\", "
+            + std::to_string(m_year)  + ", "
+            + std::to_string(m_score) + ")");
+}
+
 Entry from_csv(const std::string& csv_line, char sep)
 {
     Entry::Country country;
@@ -69,6 +82,17 @@ Entry from_csv(const std::string& csv_line, char sep)
     getline(input, remaining);
     if (!remaining.empty())
         throw std::runtime_error("Invalid csv");
+    return Entry(country, city, club, trainer, year, score);
+}
+
+Entry from_sqlite(SQLite::Statement& query)
+{
+    Entry::Country country = query.getColumn("country");
+    Entry::City city = query.getColumn("city");
+    Entry::Club club = query.getColumn("club");
+    Entry::Trainer trainer = query.getColumn("trainer");
+    Entry::Year year = query.getColumn("year");
+    Entry::Score score = query.getColumn("score");
     return Entry(country, city, club, trainer, year, score);
 }
 
