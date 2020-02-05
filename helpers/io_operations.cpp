@@ -9,6 +9,8 @@
 std::vector<ArraySize> read_sizes(const std::string& sizes_filename)
 {
     std::ifstream sizes(sizes_filename);
+    if (!sizes.is_open())
+        throw std::runtime_error("Unable to open " + sizes_filename);
     std::vector<ArraySize> answer;
     ArraySize current_size;
     while (sizes >> current_size)
@@ -28,6 +30,8 @@ void shrink_sizes(std::vector<ArraySize>& sizes, ArraySize max_size)
 Data read_data_from_csv(const std::string& csv_filename, char sep)
 {
     std::ifstream input(csv_filename);
+    if (!input.is_open())
+        throw std::runtime_error("Unable to open " + csv_filename);
     std::string csv_line;
     std::getline(input, csv_line);
     Data answer;
