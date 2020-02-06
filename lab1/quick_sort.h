@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Заголовочный файл, содержащий реализацию быстрой сортировки
+ * @date Январь 2020
+*/
 #ifndef QUICK_SORT_H
 #define QUICK_SORT_H
 
@@ -8,6 +13,15 @@
 namespace my
 {
 
+/** Реализует быструю сортировку диапазона элементов
+ * @tparam Iterator Iterator тип, удовлетворяющий C++ named requirement
+ * ValueSwappable и LegacyRandomAccessIterator
+ * @tparam Comparator тип, удовлетворяющий C++ named requirement Compare
+ * @param[in,out] begin,end итераторы, указывающие на диапазон, который
+ * требуется отсортировать
+ * @param cmp компаратор: возвращает `true`, если его первый аргумент должен стоять
+ * в отсортированном диапазоне строго левее второго, `false` иначе
+*/
 template<typename Iterator, typename Comparator>
 void quick_sort(Iterator begin, Iterator end, Comparator cmp)
 {
@@ -44,6 +58,12 @@ void quick_sort(Iterator begin, Iterator end, Comparator cmp)
     }
 }
 
+/** Реализует быструю сортировку диапазона элементов по возрастанию
+ * @tparam Iterator Iterator тип, удовлетворяющий C++ named requirement
+ * ValueSwappable и LegacyRandomAccessIterator
+ * @param[in,out] begin,end итераторы, указывающие на диапазон, который
+ * требуется отсортировать
+*/
 template<typename Iterator>
 void quick_sort(Iterator begin, Iterator end)
 {

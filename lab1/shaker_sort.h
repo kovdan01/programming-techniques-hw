@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Заголовочный файл, содержащий реализацию шейкер-сортировки
+ * @date Январь 2020
+*/
 #ifndef SHAKER_SORT_H
 #define SHAKER_SORT_H
 
@@ -7,6 +12,15 @@
 namespace my
 {
 
+/** Реализует шейкер-сортировку диапазона элементов
+ * @tparam Iterator Iterator тип, удовлетворяющий C++ named requirement
+ * ValueSwappable и LegacyRandomAccessIterator
+ * @tparam Comparator тип, удовлетворяющий C++ named requirement Compare
+ * @param[in,out] begin,end итераторы, указывающие на диапазон, который
+ * требуется отсортировать
+ * @param cmp компаратор: возвращает `true`, если его первый аргумент должен стоять
+ * в отсортированном диапазоне строго левее второго, `false` иначе
+*/
 template<typename Iterator, typename Comparator>
 void shaker_sort(Iterator begin, Iterator end, Comparator cmp)
 {
@@ -40,6 +54,12 @@ void shaker_sort(Iterator begin, Iterator end, Comparator cmp)
     }
 }
 
+/** Реализует шейкер-сортировку диапазона элементов по возрастанию
+ * @tparam Iterator Iterator тип, удовлетворяющий C++ named requirement
+ * ValueSwappable и LegacyRandomAccessIterator
+ * @param[in,out] begin,end итераторы, указывающие на диапазон, который
+ * требуется отсортировать
+*/
 template<typename Iterator>
 void shaker_sort(Iterator begin, Iterator end)
 {
