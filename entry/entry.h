@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Заголовочный файл, содержащий описание класса Entry
+ * @date Январь 2020
+*/
 #ifndef ENTRY_H
 #define ENTRY_H
 
@@ -6,6 +11,10 @@
 #include <string>
 #include <utility>
 
+/**
+ * @class Entry
+ * @brief Класс, содержащий описание футбольной команды
+ */
 class Entry
 {
 public:
@@ -39,9 +48,22 @@ public:
     [[nodiscard]] Year year() const { return m_year; }
     [[nodiscard]] Score score() const { return m_score; }
 
+    /**
+     * Выводит данные о классе в заданный поток вывода в формате csv:
+     * country;city;club;trainer;year;score
+     * @param[out] stream поток вывода, в который производится вывод
+     * @param[in] sep разделитель, использующийся в формате csv
+     */
     void to_csv(std::ostream& stream, char sep = ';') const;
 
     inline static const std::string table_name = "entries";
+    /**
+     * Выводит данные о классе в заданный поток вывода в базу данных SQLite
+     * @param[out] db объект базы данных, в которую нужно произвести запись
+     * @param[in] table имя таблицы в базе `db`, в которую производится запись;
+     * должна иметь поля `country (TEXT), city (TEXT), club (TEXT), `
+     * `trainer (TEXT), year (INTEGER), score (INTEGER)`
+     */
     void to_sqlite(SQLite::Database& db, const std::string& table = table_name) const;
 
     friend bool operator==(const Entry& lhs, const Entry& rhs);
@@ -62,7 +84,22 @@ private:
     Score m_score;
 };
 
+/**
+ * Создает объект класса `Entry` из строки в формате csv
+ * @param[in] csv_line строка в формате csv со следующими столбцами:
+ * country;city;club;trainer;year;score
+ * @param[in] sep разделитель, использующийся в формате csv
+ * @return созданный по строке в формате csv объект класса `Entry`
+ */
 Entry from_csv(const std::string& csv_line, char sep = ';');
+
+/**
+ * Создает объект класса `Entry` по данным из БД SQLite
+ * @param[in] query сформированный SQL-запрос; будут использованы поля:
+ * country (TEXT), city (TEXT), club (TEXT), trainer (TEXT), `
+ * `year (INTEGER), score (INTEGER)`
+ * @return созданный по данным из БД объект класса `Entry`
+ */
 Entry from_sqlite(SQLite::Statement& query);
 
 #endif // ENTRY_H
