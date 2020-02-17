@@ -183,7 +183,7 @@ TestResult test_all(const Data& data, const std::vector<ArraySize>& sizes)
     return answer;
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) try
 {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -280,4 +280,9 @@ int main(int argc, char* argv[])
     }
 
     return 0;
+}
+catch (const std::exception& e)
+{
+    std::cerr << e.what() << '\n';
+    return 1;
 }

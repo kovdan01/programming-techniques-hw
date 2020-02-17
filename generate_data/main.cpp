@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <stdexcept>
 
 std::pair<Country, City> generate_location(std::mt19937& prng)
 {
@@ -50,7 +51,7 @@ Entry generate_entry(std::mt19937& prng)
     return Entry(country, city, club, trainer, year, score);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) try
 {
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -141,4 +142,9 @@ int main(int argc, char* argv[])
     }
 
     return 0;
+}
+catch (const std::exception& e)
+{
+    std::cerr << e.what() << '\n';
+    return 1;
 }

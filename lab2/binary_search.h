@@ -46,7 +46,7 @@ const elem_type<Iterator>& trivial_extractor(const elem_type<Iterator>& elem)
     return elem;
 }
 
-}
+} // namespace
 
 // lower_bound
 

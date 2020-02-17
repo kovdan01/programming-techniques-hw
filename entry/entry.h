@@ -38,8 +38,8 @@ public:
 
     Entry(const Entry&) = default;
     Entry& operator=(const Entry&) = default;
-    Entry(Entry&&) = default;
-    Entry& operator=(Entry&&) = default;
+    Entry(Entry&&) noexcept = default;
+    Entry& operator=(Entry&&) noexcept = default;
 
     [[nodiscard]] Country country() const { return m_country; }
     [[nodiscard]] City city() const { return m_city; }
