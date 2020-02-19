@@ -100,19 +100,20 @@ SizeToTime test_hash_algo(const Data& data, const std::vector<ArraySize>& sizes,
         for (Data::const_iterator it = data.begin(); it != data_size_it; ++it)
             std_mmap.emplace(it->trainer(), *it);
 #endif
+        time_point<high_resolution_clock> start = high_resolution_clock::now();
         for (const Entry::Trainer& element_to_search : elements_to_search.at(size))
         {
-            time_point<high_resolution_clock> start = high_resolution_clock::now();
-            std::optional<std::forward_list<Entry>> found = mmap.equal_range(element_to_search);
-            time_point<high_resolution_clock> end = high_resolution_clock::now();
-            answer[size] += duration_cast<std::chrono::nanoseconds>(end - start).count();
+            const std::forward_list<Entry>& found = mmap.equal_range(element_to_search);
 #ifndef NDEBUG
             auto [range_begin, range_end] = std_mmap.equal_range(element_to_search);
-            const std::forward_list<Entry>& list = found.value_or(std::forward_list<Entry>());
-            assert(std::distance(list.begin(), list.end()) == std::distance(range_begin, range_end));
+            assert(std::distance(found.begin(), found.end()) == std::distance(range_begin, range_end));
 #endif
         }
-        answer[size] /= elements_to_search.size();
+        time_point<high_resolution_clock> end = high_resolution_clock::now();
+        answer[size] = static_cast<Time>(
+                           duration_cast<std::chrono::nanoseconds>(end - start).count() /
+                           static_cast<double>(elements_to_search.size())
+                       );
     }
 
     return answer;
@@ -121,7 +122,7 @@ SizeToTime test_hash_algo(const Data& data, const std::vector<ArraySize>& sizes,
 TestResult test_all(const Data& data, const std::vector<ArraySize>& sizes)
 {
 
-    const std::size_t SEARCH_COUNT = 50;
+    const std::size_t SEARCH_COUNT = 1000;
     TestResult answer;
 
     std::map<std::size_t, std::vector<Entry::Club>> elements_to_search;

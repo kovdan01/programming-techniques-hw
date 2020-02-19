@@ -81,11 +81,10 @@ public:
     /**
      * Ищет в хэш-таблице элементы с заданным ключом
      * @param[in] key ключ, по которому будет осуществляться поиск
-     * @return `std::nullopt`, если элементов с заданным ключом не нашлось,
-     * или `std::optional`, содержащий `std::forward_list` - список значений,
-     * хранящихся в хэш-таблице по ключу `key`
+     * @return `std::forward_list`, содержащий значения,
+     * хранящиеся в хэш-таблице по ключу `key`
      */
-    [[nodiscard]] std::optional<std::forward_list<T>> equal_range(const Key& key) const
+    [[nodiscard]] const std::forward_list<T>& equal_range(const Key& key) const
     {
         const Bucket& bucket = m_data[get_index(key)];
 #ifndef NDEBUG
@@ -94,12 +93,13 @@ public:
         for (const Node& node : bucket)
             if (node.first == key)
                 return node.second;
-        return std::nullopt;
+        return m_empty_list;
     }
 
 private:
     using Node = std::pair<Key, std::forward_list<T>>;
     using Bucket = std::list<Node>;
+    static inline const std::forward_list<T> m_empty_list{};
     Hash m_hash;
     std::vector<Bucket> m_data;
     std::size_t m_max_bucket_size = 3;
@@ -118,7 +118,7 @@ private:
         std::cerr << "Rehash: " << m_data.size() << ", " << m_max_bucket_size;
 #endif
         std::size_t new_size, new_max_bucket_size;
-        if (not_empty_count * 4 > m_data.size())
+        if (not_empty_count * 5 > m_data.size())
         {
             new_size = m_data.size() * 2;
             new_max_bucket_size = 3;
@@ -136,12 +136,9 @@ private:
         new_table.m_data.resize(new_size);
 
         for (Bucket& bucket : m_data)
-        {
             for (Node& node : bucket)
-            {
                 new_table.emplace(std::move(node.first), std::move(node.second));
-            }
-        }
+
         std::swap(*this, new_table);
     }
 };
