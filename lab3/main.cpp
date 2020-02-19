@@ -56,32 +56,6 @@ std::vector<Entry::Trainer> pick_random_elements(Data::const_iterator begin, Dat
     return answer;
 }
 
-//template <typename Hash>
-//SizeToTime test_hash_algo(const Data& data, const std::vector<ArraySize>& sizes,
-//                          const std::map<std::size_t, std::vector<Entry::Club>>& elements_to_search)
-//{
-//    SizeToTime answer;
-//    using namespace std::chrono;
-//    for (ArraySize size : sizes)
-//    {
-//        size = std::min(size, data.size());
-//        Data::const_iterator data_size_it = std::next(data.begin(), static_cast<std::ptrdiff_t>(size));
-//        std::unordered_multimap<Entry::Trainer, Entry, Hash> mmap;
-//        for (Data::const_iterator it = data.begin(); it != data_size_it; ++it)
-//            mmap.emplace(it->trainer(), *it);
-//        for (const Entry::Trainer& element_to_search : elements_to_search.at(size))
-//        {
-//            time_point<high_resolution_clock> start = high_resolution_clock::now();
-//            auto [range_begin, range_end] = mmap.equal_range(element_to_search);
-//            time_point<high_resolution_clock> end = high_resolution_clock::now();
-//            answer[size] += duration_cast<std::chrono::nanoseconds>(end - start).count();
-//        }
-//        answer[size] /= elements_to_search.size();
-//    }
-
-//    return answer;
-//}
-
 template <typename Hash>
 SizeToTime test_hash_algo(const Data& data, const std::vector<ArraySize>& sizes,
                           const std::map<std::size_t, std::vector<Entry::Club>>& elements_to_search)
