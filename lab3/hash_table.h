@@ -30,7 +30,7 @@ class HashTable
 {
 public:
     HashTable()
-        : m_hash({})
+        : m_hasher({})
         , m_data(std::vector<Bucket>(17))
     {}
     HashTable(const HashTable&) = default;
@@ -55,27 +55,9 @@ public:
      */
     void emplace(const Key& key, std::forward_list<T> values)
     {
-        Bucket& bucket = m_data[get_index(key)];
-        for (Node& node : bucket)
-        {
-            if (node.first == key)
-            {
-                for (T& value : values)
-                    node.second.emplace_front(std::move(value));
-                return;
-            }
-        }
-        if (bucket.size() != m_max_bucket_size)
-        {
-            if (bucket.empty())
-                ++not_empty_count;
-            bucket.emplace_front(key, std::move(values));
-        }
-        else
-        {
-            rehash();
-            emplace(key, std::move(values));
-        }
+        std::size_t hash = m_hasher(key);
+        Bucket& bucket = m_data[hash % m_data.size()];
+        emplace(key, std::move(values), bucket, hash);
     }
 
     /**
@@ -91,34 +73,105 @@ public:
         assert(bucket.size() <= m_max_bucket_size);
 #endif
         for (const Node& node : bucket)
-            if (node.first == key)
-                return node.second;
+            if (node.hash_and_key().key() == key)
+                return node.values();
         return m_empty_list;
     }
 
 private:
-    using Node = std::pair<Key, std::forward_list<T>>;
+    class HashAndKey
+    {
+    public:
+        HashAndKey(std::size_t hash, Key key)
+            : m_hash(hash), m_key(std::move(key))
+        {}
+        HashAndKey() = delete;
+        HashAndKey(const HashAndKey&) = default;
+        HashAndKey& operator=(const HashAndKey&) = default;
+        HashAndKey(HashAndKey&&) noexcept = default;
+        HashAndKey& operator=(HashAndKey&&) noexcept = default;
+
+        [[nodiscard]] std::size_t hash() const { return m_hash; }
+
+        [[nodiscard]] const Key& key() const { return m_key; }
+        [[nodiscard]] Key& key() { return m_key; }
+
+    private:
+        std::size_t m_hash;
+        Key m_key;
+    };
+
+    class Node
+    {
+    public:
+        Node(HashAndKey hash_and_key, std::forward_list<T> values)
+            : m_hash_and_key(std::move(hash_and_key)), m_values(std::move(values))
+        {}
+        Node() = delete;
+        Node(const Node&) = default;
+        Node& operator=(const Node&) = default;
+        Node(Node&&) noexcept = default;
+        Node& operator=(Node&&) noexcept = default;
+
+        [[nodiscard]] const HashAndKey& hash_and_key() const { return m_hash_and_key; }
+        [[nodiscard]] HashAndKey& hash_and_key() { return m_hash_and_key; }
+
+        [[nodiscard]] const std::forward_list<T>& values() const { return m_values; }
+        [[nodiscard]] std::forward_list<T>& values() { return m_values; }
+
+    private:
+        HashAndKey m_hash_and_key;
+        std::forward_list<T> m_values;
+    };
+
     using Bucket = std::list<Node>;
-    static inline const std::forward_list<T> m_empty_list{};
-    Hash m_hash;
+
+    Hash m_hasher;
     std::vector<Bucket> m_data;
     std::size_t m_max_bucket_size = 3;
     std::size_t not_empty_count = 0;
 
-    [[nodiscard]] std::size_t get_index(const Key& key, std::size_t buckets = 0) const
+    static inline const std::forward_list<T> m_empty_list{};
+
+    [[nodiscard]] std::size_t get_index(const Key& key) const
     {
-        if (buckets == 0)
-            buckets = m_data.size();
-        return m_hash(key) % buckets;
+        return m_hasher(key) % m_data.size();
+    }
+
+    void emplace(const Key& key, std::forward_list<T> values, std::size_t hash)
+    {
+        Bucket& bucket = m_data[hash % m_data.size()];
+        emplace(key, std::move(values), bucket, hash);
+    }
+
+    void emplace(const Key& key, std::forward_list<T> values, Bucket& bucket, std::size_t hash)
+    {
+        for (Node& node : bucket)
+        {
+            if (node.hash_and_key().key() == key)
+            {
+                for (T& value : values)
+                    node.values().emplace_front(std::move(value));
+                return;
+            }
+        }
+        if (bucket.size() != m_max_bucket_size)
+        {
+            if (bucket.empty())
+                ++not_empty_count;
+            bucket.emplace_front(HashAndKey(hash, key), std::move(values));
+        }
+        else
+        {
+            rehash();
+            emplace(key, std::move(values), hash);
+        }
     }
 
     void rehash()
     {
-#ifndef NDEBUG
-        std::cerr << "Rehash: " << m_data.size() << ", " << m_max_bucket_size;
-#endif
         std::size_t new_size, new_max_bucket_size;
-        if (not_empty_count * 5 > m_data.size())
+        if (not_empty_count * 7 > m_data.size())
         {
             new_size = m_data.size() * 2;
             new_max_bucket_size = 3;
@@ -129,7 +182,8 @@ private:
             new_max_bucket_size = m_max_bucket_size + 1;
         }
 #ifndef NDEBUG
-        std::cerr << " --> " << new_size << ", " << new_max_bucket_size << std::endl;
+        std::cerr << "Rehash: " << m_data.size() << ", " << m_max_bucket_size
+                  << " --> " << new_size << ", " << new_max_bucket_size << std::endl;
 #endif
         HashTable new_table;
         new_table.m_max_bucket_size = new_max_bucket_size;
@@ -137,7 +191,7 @@ private:
 
         for (Bucket& bucket : m_data)
             for (Node& node : bucket)
-                new_table.emplace(std::move(node.first), std::move(node.second));
+                new_table.emplace(std::move(node.hash_and_key().key()), std::move(node.values()), node.hash_and_key().hash());
 
         std::swap(*this, new_table);
     }

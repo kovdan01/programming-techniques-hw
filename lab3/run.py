@@ -17,17 +17,30 @@ try:
 
     print("Running tests...")
     if not os.path.isfile("results.csv"):
-        subprocess.call("./3_hashes --input=data.sqlite --sizes=sizes.txt --output=results.csv 2> test_hash.log", shell=True)
+        subprocess.call("./3_hashes --input=data.sqlite --sizes=sizes.txt --output_time=results_time.csv --output_collision=results_collision.csv 2> test_hash.log", shell=True)
     print("Done!")
 
-    raw = pd.read_csv("results.csv", sep=';')
-    data = dict()
-    columns = list(raw.columns[1:].astype(int))
-    for i in range(raw.shape[0]):
-        data[raw.iloc[i]["name"]] = list(raw.iloc[i][1:])
+    raw_time = pd.read_csv("results_time.csv", sep=';')
+    data_time = dict()
+    columns_time = list(raw_time.columns_time[1:].astype(int))
+    for i in range(raw_time.shape[0]):
+        data_time[raw_time.iloc[i]["name"]] = list(raw_time.iloc[i][1:])
     plt.figure(figsize=(12, 8))
-    for name, timings in data.items():
-        plt.plot(columns, timings, label=name)
+    for name, timings in data_time.items():
+        plt.plot(columns_time, timings, label=name)
+        plt.xscale('log')
+        plt.yscale('log')
+        plt.legend()
+    plt.show()
+    
+    raw_collision = pd.read_csv("results_collision.csv", sep=';')
+    data_collision = dict()
+    columns_collision = list(raw_collision.columns_collision[1:].astype(int))
+    for i in range(raw_collision.shape[0]):
+        data_collision[raw_collision.iloc[i]["name"]] = list(raw_collision.iloc[i][1:])
+    plt.figure(figsize=(12, 8))
+    for name, collisions in data_collision.items():
+        plt.plot(columns_collision, sollisions, label=name)
         plt.xscale('log')
         plt.yscale('log')
         plt.legend()
