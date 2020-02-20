@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Заголовочный файл, содержащий реализацию простейшей хэш-таблицы
+ * @date Февраль 2020
+*/
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
