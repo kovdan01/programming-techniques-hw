@@ -7,12 +7,12 @@ from matplotlib import pyplot as plt
 try:
     print("Generating data...")
     if not os.path.isfile("data.sqlite"):
-        subprocess.call("../generate_data/generate_data --size=10000000 --output=data.sqlite", shell=True)
+        subprocess.call("../generate_data/generate_data --size=1000000 --output=data.sqlite", shell=True)
     print("Done!")
 
     if not os.path.isfile("sizes.txt"):
         f = open("sizes.txt", "w")
-        f.write(" ".join(np.logspace(4, 7, 100).astype(int).astype(str)) + "\n")
+        f.write(" ".join(np.logspace(4, 6, 20).astype(int).astype(str)) + "\n")
         f.close()
 
     print("Running tests...")
