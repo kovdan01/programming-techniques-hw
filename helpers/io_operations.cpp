@@ -59,3 +59,13 @@ std::ostream& print_timings_csv_line(std::ostream& output, const AlgoName& name,
     output << '\n';
     return output;
 }
+
+std::ostream& print_collisions_csv_line(std::ostream& output, const AlgoName& name,
+                                        const SizeToPercentage& percentages, char sep)
+{
+    output << name;
+    for (auto [_, percentage] : percentages)
+        output << sep << percentage;
+    output << '\n';
+    return output;
+}
